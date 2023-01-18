@@ -71,7 +71,8 @@ install_requires = [
     "python-json-logger",
     "ruamel.yaml",
     "werkzeug",
-    "protobuf>=3.8.0,<3.19"
+    "protobuf>=3.8.0,<3.19",
+    "prometheus_client"
 ]
 
 setuptools.setup(
