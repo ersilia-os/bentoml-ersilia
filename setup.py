@@ -75,7 +75,7 @@ install_requires = [
 ]
 
 setuptools.setup(
-    name="bentoml-ersilia",
+    name="bentoml",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     author="bentoml.org",
