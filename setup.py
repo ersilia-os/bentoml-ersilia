@@ -54,6 +54,7 @@ install_requires = [
 ]
 
 install_requires = [
+    "docker",
     "alembic",
     "packaging",
     "boto3",
