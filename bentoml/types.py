@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import io
+import sys
 import os
 import urllib
 import uuid
@@ -47,6 +48,8 @@ BATCH_HEADER = config("apiserver").get("batch_request_header")
 HEADER_CHARSET = 'latin1'
 
 JSON_CHARSET = 'utf-8'
+
+python_version = sys.version_info
 
 
 @json_serializer(fields=['uri', 'name'], compat=True)
@@ -137,7 +140,6 @@ class FileLike:
         if self._stream and not self._stream.closed:
             self._stream.close()
 
-
 class HTTPHeaders(CIMultiDict):
     """
     A case insensitive mapping of HTTP headers' keys and values.
@@ -194,6 +196,13 @@ class HTTPHeaders(CIMultiDict):
         return tuple(self.items())
 
 
+def http_headers_resolver():
+    if python_version.major == 3 and python_version.minor < 7:
+        return HTTPHeaders()
+    else:
+        return field(default_factory=HTTPHeaders())
+    
+
 @dataclass
 class HTTPRequest:
     """
@@ -208,7 +217,7 @@ class HTTPRequest:
 
     """
 
-    headers: HTTPHeaders = HTTPHeaders()
+    headers: HTTPHeaders = http_headers_resolver()
     body: bytes = b""
 
     def __post_init__(self):
@@ -254,7 +263,7 @@ class HTTPRequest:
 @dataclass
 class HTTPResponse:
     status: int = 200
-    headers: HTTPHeaders = HTTPHeaders()
+    headers: HTTPHeaders = http_headers_resolver()
     body: bytes = b""
 
     def __post_init__(self):
@@ -307,7 +316,7 @@ class InferenceResult(Generic[Output]):
 
     # context
     http_status: Optional[int] = None
-    http_headers: HTTPHeaders = HTTPHeaders()
+    http_headers: HTTPHeaders = http_headers_resolver()
     aws_lambda_event: Optional[dict] = None
     cli_status: Optional[int] = 0
 
@@ -374,7 +383,7 @@ class InferenceTask(Generic[Input]):
 
     # context
     http_method: Optional[str] = None
-    http_headers: HTTPHeaders = HTTPHeaders()
+    http_headers: HTTPHeaders = http_headers_resolver()
     aws_lambda_event: Optional[dict] = None
     cli_args: Optional[Sequence[str]] = None
     inference_job_args: Optional[Mapping[str, Any]] = None
